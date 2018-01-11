@@ -1,0 +1,10 @@
+{
+  "open": false,
+  "server": {
+    "baseDir": [
+      "./app",
+      "./build/contracts",
+      "./node_modules"
+    ]
+  }
+}
