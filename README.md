@@ -7,12 +7,10 @@ Smart contracts for SHOP token and sale in form of [Dutch auction](https://en.wi
 # Prerequisites
 
 * [yarn](https://yarnpkg.com)
-* [foreman](https://github.com/ddollar/foreman)
 * [MetaMask](https://metamask.io)
 
-# Running
+# Running DApp
 
-    $ make clean install build
-    $ foreman start
-
-Open [`localhost:3000`](http://localhost:3000) to view DApp.
+1. Run `make clean install build run`.
+2. Open [`localhost:3000`](http://localhost:3000) in your browser.
+3. Select `Localhost 8545` network in Metamask.

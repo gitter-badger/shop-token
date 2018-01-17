@@ -1,3 +1,3 @@
 ganache: ./node_modules/.bin/ganache-cli
-truffle: ./node_modules/.bin/truffle migrate && touch /tmp/truffle.log && tail -f /tmp/truffle.log
-web: npm run dev
+migrate: ./node_modules/.bin/truffle migrate && touch /tmp/truffle.log && tail -f /tmp/truffle.log
+webdapp: npm run dev
