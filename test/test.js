@@ -55,8 +55,8 @@ contract('DutchAuction', function (accounts) {
 
   it("Should verify `AuctionDeployed` stage", async function () {
     // Stage verification
-    const stage = await auctionContract.stage.call();
-    assert.equal(stage, StagesEnum.AuctionDeployed, "Stage should be `AuctionDeployed`");
+    const current_stage = await auctionContract.current_stage.call();
+    assert.equal(current_stage, StagesEnum.AuctionDeployed, "Stage should be `AuctionDeployed`");
 
     // Expect errors if next stage != `AuctionSetup`
     await expectThrow(auctionContract.start());
@@ -69,8 +69,8 @@ contract('DutchAuction', function (accounts) {
     assert.equal(result.logs[0].event, AUCTION_SETUP, "Should fire `AuctionSetup` event")
 
     // Stage verification
-    const stage = await auctionContract.stage.call();
-    assert.equal(stage, StagesEnum.AuctionSetup, "Stage should be `AuctionSetup`");
+    const current_stage = await auctionContract.current_stage.call();
+    assert.equal(current_stage, StagesEnum.AuctionSetup, "Stage should be `AuctionSetup`");
 
     // Expect errors if next stage != `AuctionStarted`
     await expectThrow(auctionContract.setup(tokenContract.address));
@@ -84,8 +84,8 @@ contract('DutchAuction', function (accounts) {
     assert.equal(result.logs[0].event, AUCTION_STARTED, "Should fire `AuctionStarted` event")
 
     // Stage verification
-    const stage = await auctionContract.stage.call();
-    assert.equal(stage, StagesEnum.AuctionStarted, "Stage should be `AuctionStarted`");
+    const current_stage = await auctionContract.current_stage.call();
+    assert.equal(current_stage, StagesEnum.AuctionStarted, "Stage should be `AuctionStarted`");
 
     // Expect errors if next stage != `AuctionEnded`
     await expectThrow(auctionContract.start());
@@ -100,8 +100,8 @@ contract('DutchAuction', function (accounts) {
     assert.equal(result.logs[0].event, AUCTION_ENDED, "Should fire `AuctionEnded` event")
 
     // Stage verification
-    const stage = await auctionContract.stage.call();
-    assert.equal(stage, StagesEnum.AuctionEnded, "Stage should be `AuctionEnded`");
+    const current_stage = await auctionContract.current_stage.call();
+    assert.equal(current_stage, StagesEnum.AuctionEnded, "Stage should be `AuctionEnded`");
 
     // Expect errors if next stage != `TokensDistributed`
     await expectThrow(auctionContract.start());

@@ -9,6 +9,9 @@ install:
 build:
 	$(BIN)/truffle compile
 
+lint:
+	$(BIN)/solium -d contracts/
+
 migrate:
 	# Note: being used for testing purposes only
 	$(BIN)/run-with-testrpc --testrpc-cmd $(BIN)/ganache-cli '$(BIN)/truffle migrate'
@@ -19,4 +22,4 @@ test:
 run:
 	$(BIN)/nf start
 
-.PHONY: clean install build migrate test run
+.PHONY: clean install build lint migrate test run

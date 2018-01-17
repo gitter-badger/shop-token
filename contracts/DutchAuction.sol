@@ -1,7 +1,7 @@
 pragma solidity ^0.4.17;
 
-import 'zeppelin-solidity/contracts/math/SafeMath.sol';
-import './ShopToken.sol';
+import "zeppelin-solidity/contracts/math/SafeMath.sol";
+import "./ShopToken.sol";
 
 contract DutchAuction {
 
@@ -35,7 +35,7 @@ contract DutchAuction {
     ShopToken public token;
 
     // Current stage
-    Stages public stage;
+    Stages public current_stage;
 
     // `address` ⇒ `bid value` mapping
     mapping (address => uint) public bids;
@@ -69,7 +69,7 @@ contract DutchAuction {
 
     // Stage modifier
     modifier atStage(Stages _stage) {
-        require(stage == _stage);
+        require(current_stage == _stage);
         _;
     }
 
@@ -99,7 +99,7 @@ contract DutchAuction {
         price_exponent = _priceExponent;
 
         // Update auction stage and fire event
-        stage = Stages.AuctionDeployed;
+        current_stage = Stages.AuctionDeployed;
         AuctionDeployed(_priceStart, _priceConstant, _priceExponent);
     }
 
@@ -118,17 +118,17 @@ contract DutchAuction {
         total_token_units = token.balanceOf(address(this));
 
         // Update auction stage and fire event
-        stage = Stages.AuctionSetup;
+        current_stage = Stages.AuctionSetup;
         AuctionSetup();
     }
 
     // Starts auction
     function start() public isOwner atStage(Stages.AuctionSetup) {
         // Set auction start time
-        start_time = now;
+        start_time = block.timestamp;
 
         // Update auction stage and fire event
-        stage = Stages.AuctionStarted;
+        current_stage = Stages.AuctionStarted;
         AuctionStarted(start_time);
     }
 
@@ -136,13 +136,13 @@ contract DutchAuction {
     // @TODO - Calculate final price
     function finalize() public atStage(Stages.AuctionStarted) {
         // Set auction end time
-        end_time = now;
+        end_time = block.timestamp;
         
         // Calculate final price
         price_final = 1;
 
         // Update auction stage and fire event
-        stage = Stages.AuctionEnded;
+        current_stage = Stages.AuctionEnded;
         AuctionEnded(price_final);
     }    
 }

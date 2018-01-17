@@ -1,2 +1,5 @@
+# Truffle build directory
 build/
+
+# NPM dependencies
 node_modules/

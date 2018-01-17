@@ -1,7 +1,7 @@
 pragma solidity ^0.4.17;
 
-import 'zeppelin-solidity/contracts/math/SafeMath.sol';
-import 'zeppelin-solidity/contracts/token/StandardToken.sol';
+import "zeppelin-solidity/contracts/math/SafeMath.sol";
+import "zeppelin-solidity/contracts/token/StandardToken.sol";
 
 contract ShopToken is StandardToken {
     // ERC20 Metadata
