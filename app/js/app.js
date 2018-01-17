@@ -1,7 +1,7 @@
 App = {
   web3Provider: null,
   contracts: {},
-  multiplier: 1000000000000000000, // 10^18
+  multiplier: Math.pow(10, 18),
 
   init: function () {
     return App.initWeb3();
@@ -23,13 +23,13 @@ App = {
 
   // Init contract
   initContract: function () {
-    $.getJSON('ShopToken.json', function (data) {
+    $.getJSON('DutchAuction.json', function (data) {
       // Get the necessary contract artifact file and instantiate it with truffle-contract
-      var ShopTokenArtifact = data;
-      App.contracts.ShopToken = TruffleContract(ShopTokenArtifact);
+      var DutchAuctionArtifact = data;
+      App.contracts.DutchAuction = TruffleContract(DutchAuctionArtifact);
 
       // Set the provider for our contract
-      App.contracts.ShopToken.setProvider(App.web3Provider);
+      App.contracts.DutchAuction.setProvider(App.web3Provider);
 
       // Use our contract to retrieve and mark the adopted pets
       return App.showSupply();
@@ -45,17 +45,12 @@ App = {
 
   // Show supplies in the middle of the page
   showSupply: async function (token, account) {
-    const shopToken = await App.contracts.ShopToken.deployed();
-    const initialSupplyWei = await shopToken.INITIAL_SUPPLY.call();
-    const auctionSupplyWei = await shopToken.PRIVATE_SALE_SUPPLY.call();
-    const initialSupply = await web3.fromWei(initialSupplyWei);
+    const auctionContract = await App.contracts.DutchAuction.deployed();
+    const auctionSupplyWei = await auctionContract.total_token_units.call();
     const auctionSupply = await web3.fromWei(auctionSupplyWei);
 
-    console.log("Initial supply:", initialSupply);
-    console.log("Private sale supply:", auctionSupply);
-
-    $('#info-token-supply').html(initialSupply.toFormat());
-    $('#info-sale-supply').html(auctionSupply.toFormat());
+    console.log("Dutch auction supply:", auctionSupply);
+    $('#info-auction-supply').html(auctionSupply.toFormat());
   },
 
   // Handle click on `Refresh` button
