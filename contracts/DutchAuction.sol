@@ -193,7 +193,7 @@ contract DutchAuction {
     }
 
     // End auction
-    function endAuction() public atStage(Stages.AuctionStarted) {
+    function endAuction() public isOwner atStage(Stages.AuctionStarted) {
         // Update auction states and fire event
         price_final = price_current;
         current_stage = Stages.AuctionEnded;
