@@ -3,7 +3,7 @@ import expectThrow from 'zeppelin-solidity/test/helpers/expectThrow';
 var DutchAuction = artifacts.require("./DutchAuction.sol");
 var ShopToken = artifacts.require("./ShopToken.sol");
 
-contract('DutchAuction', function (accounts) {
+contract('StageTransition', function (accounts) {
   // Account shortcuts
   const coinbase = accounts[0];
 
@@ -11,13 +11,13 @@ contract('DutchAuction', function (accounts) {
   const decimals = 18;
   const multiplier = Math.pow(10, decimals);
   const initialSupply = Math.pow(10, 9) * multiplier;
-  const auctionSupply = Math.pow(10, 8) * multiplier;
+  const auctionSupply = Math.pow(10, 4) * multiplier;
   const tokenSupply = initialSupply - auctionSupply;
 
   // Dutch auction constructor parameters
-  const priceStart = 0.02 * multiplier;
-  const priceConstant = 524880000;
-  const priceExponent = 3;
+  const priceStart = 500;
+  const priceDecay = 25;
+  const minimumBid = 0;
 
   // ENUMs are not yet supported as ABI type
   // See https://github.com/ethereum/EIPs/issues/47
@@ -34,14 +34,13 @@ contract('DutchAuction', function (accounts) {
   const AUCTION_SETUP = "AuctionSetup";
   const AUCTION_STARTED = "AuctionStarted";
   const AUCTION_ENDED = "AuctionEnded";
-  const TOKENS_DISTRIBUTED = "TokensDistributed";
 
   let auctionContract;
   let tokenContract;
 
   // Reset contract state before each test case
   beforeEach(async function () {
-    auctionContract = await DutchAuction.new(priceStart, priceConstant, priceExponent);
+    auctionContract = await DutchAuction.new(priceStart, priceDecay, minimumBid);
     tokenContract = await ShopToken.new(auctionContract.address, initialSupply, auctionSupply);
   });
 
@@ -49,8 +48,8 @@ contract('DutchAuction', function (accounts) {
     const auctionBalance = await tokenContract.balanceOf(auctionContract.address);
     const tokenBalance = await tokenContract.balanceOf(coinbase);
 
-    assert.equal(auctionBalance.toNumber(), auctionSupply, "Auction balance should be 100M");
-    assert.equal(tokenBalance.toNumber(), tokenSupply, "Token balance should be 900M");
+    assert.equal(auctionBalance.toNumber(), auctionSupply, "Auction balance should be 10K");
+    assert.equal(tokenBalance.toNumber(), tokenSupply, "Token balance should be 990M");
   });
 
   it("Should verify `AuctionDeployed` stage", async function () {
@@ -59,13 +58,13 @@ contract('DutchAuction', function (accounts) {
     assert.equal(current_stage, StagesEnum.AuctionDeployed, "Stage should be `AuctionDeployed`");
 
     // Expect errors if next stage != `AuctionSetup`
-    await expectThrow(auctionContract.start());
-    await expectThrow(auctionContract.finalize());
+    await expectThrow(auctionContract.startAuction());
+    await expectThrow(auctionContract.endAuction());
   });
 
   it("Should verify `AuctionSetup` stage", async function () {
     // Initial contract setup & event verification
-    const result = await auctionContract.setup(tokenContract.address);
+    const result = await auctionContract.setupAuction(tokenContract.address);
     assert.equal(result.logs[0].event, AUCTION_SETUP, "Should fire `AuctionSetup` event")
 
     // Stage verification
@@ -73,14 +72,14 @@ contract('DutchAuction', function (accounts) {
     assert.equal(current_stage, StagesEnum.AuctionSetup, "Stage should be `AuctionSetup`");
 
     // Expect errors if next stage != `AuctionStarted`
-    await expectThrow(auctionContract.setup(tokenContract.address));
-    await expectThrow(auctionContract.finalize());
+    await expectThrow(auctionContract.setupAuction(tokenContract.address));
+    await expectThrow(auctionContract.endAuction());
   });
 
   it("Should verify `AuctionStarted` stage", async function () {
     // Initial contract setup & event verification
-    await auctionContract.setup(tokenContract.address);
-    const result = await auctionContract.start();
+    await auctionContract.setupAuction(tokenContract.address);
+    const result = await auctionContract.startAuction();
     assert.equal(result.logs[0].event, AUCTION_STARTED, "Should fire `AuctionStarted` event")
 
     // Stage verification
@@ -88,15 +87,15 @@ contract('DutchAuction', function (accounts) {
     assert.equal(current_stage, StagesEnum.AuctionStarted, "Stage should be `AuctionStarted`");
 
     // Expect errors if next stage != `AuctionEnded`
-    await expectThrow(auctionContract.start());
-    await expectThrow(auctionContract.setup(tokenContract.address));
+    await expectThrow(auctionContract.startAuction());
+    await expectThrow(auctionContract.setupAuction(tokenContract.address));
   });
 
   it("Should verify `AuctionEnded` stage", async function () {
     // Initial contract setup & event verification
-    await auctionContract.setup(tokenContract.address);
-    await auctionContract.start();
-    const result = await auctionContract.finalize();
+    await auctionContract.setupAuction(tokenContract.address);
+    await auctionContract.startAuction();
+    const result = await auctionContract.endAuction();
     assert.equal(result.logs[0].event, AUCTION_ENDED, "Should fire `AuctionEnded` event")
 
     // Stage verification
@@ -104,8 +103,8 @@ contract('DutchAuction', function (accounts) {
     assert.equal(current_stage, StagesEnum.AuctionEnded, "Stage should be `AuctionEnded`");
 
     // Expect errors if next stage != `TokensDistributed`
-    await expectThrow(auctionContract.start());
-    await expectThrow(auctionContract.setup(tokenContract.address));
-    await expectThrow(auctionContract.finalize());
+    await expectThrow(auctionContract.startAuction());
+    await expectThrow(auctionContract.setupAuction(tokenContract.address));
+    await expectThrow(auctionContract.endAuction());
   });
 });

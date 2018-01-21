@@ -4,6 +4,15 @@ import "zeppelin-solidity/contracts/math/SafeMath.sol";
 import "./ShopToken.sol";
 
 contract DutchAuction {
+    using SafeMath for uint;
+
+    // Auction Bid
+    struct Bid {
+        uint quantity;
+        uint price;
+        uint transfer;
+        bool placed;
+    }
 
     // Auction Stages
     enum Stages {
@@ -15,20 +24,17 @@ contract DutchAuction {
     }
 
     // Auction Events
-    event AuctionDeployed(
-        uint indexed _priceStart,
-        uint indexed _priceConstant,
-        uint32 indexed _priceExponent
-    );
+    event AuctionDeployed(uint indexed priceStart, uint indexed priceDelta);
     event AuctionSetup();
-    event AuctionStarted(uint indexed _startTime);
-    event BidSubmission(
-        address indexed _sender,
-        uint _amount,
-        uint _missingFunds
+    event AuctionStarted();
+    event BidReceived(
+        address indexed _address,
+        uint quantity,
+        uint price,
+        uint transfer
     );
-    event TokensClaimed(address indexed _recipient, uint _sentAmount);
-    event AuctionEnded(uint _priceFinal);
+    event TokensClaimed(address indexed _address, uint amount);
+    event AuctionEnded(uint priceFinal);
     event TokensDistributed();
 
     // Token contract reference
@@ -37,32 +43,35 @@ contract DutchAuction {
     // Current stage
     Stages public current_stage;
 
-    // `address` ⇒ `bid value` mapping
-    mapping (address => uint) public bids;
+    // `address` ⇒ `Bid` mapping
+    mapping (address => Bid) public bids;
 
     // Auction owner address
     address public owner_address;
 
-    // Auction start time
-    uint public start_time;
+    // Number of accepted bids
+    uint public bids_accepted;
 
-    // Auction end time
-    uint public end_time;
+    // Minimum bid value in Wei
+    uint public minimum_bid;
 
-    // Starting price in token units
+    // Starting price in Wei
     uint public price_start;
 
-    // Divisor constant
-    uint public price_constant;
+    // Price decay value in Wei
+    uint public price_decay;
 
-    // Divisor exponent
-    uint32 public price_exponent;
+    // Current price in Wei
+    uint public price_current;
 
-    // Final price in token units
+    // Final price in Wei
     uint public price_final;
 
     // Token unit multiplier
     uint public token_multiplier;
+
+    // Total number of sold token units
+    uint public total_units_sold;
 
     // Total number of token units for auction
     uint public total_token_units;
@@ -77,34 +86,37 @@ contract DutchAuction {
     modifier isOwner() {
         require(msg.sender == owner_address);
         _;
-    }    
+    }
 
     // Constructor
     function DutchAuction(
         uint _priceStart, 
-        uint _priceConstant, 
-        uint32 _priceExponent) 
+        uint _priceDecay,
+        uint _minimumBid) 
         public 
     {
         // Input parameters validation
         require(_priceStart > 0);
-        require(_priceConstant > 0);
+        require(_priceDecay > 0);
+        require(_priceDecay < _priceStart);
+        require(_minimumBid >= 0);
 
         // Set auction owner address
         owner_address = msg.sender;
 
         // Set auction parameters
         price_start = _priceStart;
-        price_constant = _priceConstant;
-        price_exponent = _priceExponent;
+        price_current = _priceStart;
+        price_decay = _priceDecay;
+        minimum_bid = _minimumBid;
 
         // Update auction stage and fire event
         current_stage = Stages.AuctionDeployed;
-        AuctionDeployed(_priceStart, _priceConstant, _priceExponent);
+        AuctionDeployed(_priceStart, _priceDecay);
     }
 
     // Setup auction
-    function setup(address _tokenAddress) public isOwner atStage(Stages.AuctionDeployed) {
+    function setupAuction(address _tokenAddress) public isOwner atStage(Stages.AuctionDeployed) {
         // Input parameters validation
         require(_tokenAddress != 0x0);
 
@@ -117,32 +129,94 @@ contract DutchAuction {
         // Get number of token units for dutch auction
         total_token_units = token.balanceOf(address(this));
 
+        // Set initial bid count
+        bids_accepted = 0;
+
         // Update auction stage and fire event
         current_stage = Stages.AuctionSetup;
         AuctionSetup();
     }
 
     // Starts auction
-    function start() public isOwner atStage(Stages.AuctionSetup) {
-        // Set auction start time
-        start_time = block.timestamp;
-
+    function startAuction() public isOwner atStage(Stages.AuctionSetup) {
         // Update auction stage and fire event
         current_stage = Stages.AuctionStarted;
-        AuctionStarted(start_time);
+        AuctionStarted();
     }
 
-    // Finalizes auction
-    // @TODO - Calculate final price
-    function finalize() public atStage(Stages.AuctionStarted) {
-        // Set auction end time
-        end_time = block.timestamp;
-        
-        // Calculate final price
-        price_final = 1;
+    // Place bid
+    function placeBid() public payable atStage(Stages.AuctionStarted) {
+        // Allow only a single bid per address
+        require(!bids[msg.sender].placed);
 
-        // Update auction stage and fire event
+        // Require minimum bid value
+        require(minimum_bid < msg.value);
+
+        // Declare local variables
+        uint quantity = msg.value.div(price_current);
+        uint currentPrice = price_current;
+
+        // TODO: Handle 5% oversubscription here, instead of decreasing quantity
+        if (total_units_sold.add(quantity) >= total_token_units) {
+            quantity = total_token_units.sub(total_units_sold);
+        }
+        
+        // Save bid
+        Bid memory bid = Bid({
+            quantity: quantity,
+            price: price_current,
+            transfer: msg.value,
+            placed: true
+        });
+        bids[msg.sender] = bid;
+        
+        // Fire event
+        BidReceived(
+            msg.sender, 
+            quantity, 
+            price_current, 
+            msg.value
+        );
+
+        // Update auction states
+        total_units_sold = total_units_sold.add(quantity);
+        bids_accepted = bids_accepted.add(1);
+        decreasePrice();
+
+        // End auction automatically if all token units sold
+        // Set `price_final` to last bid price
+        if (total_units_sold == total_token_units) {
+            price_final = currentPrice;            
+            current_stage = Stages.AuctionEnded;
+            AuctionEnded(currentPrice);
+        }
+    }
+
+    // End auction
+    function endAuction() public atStage(Stages.AuctionStarted) {
+        // Update auction states and fire event
+        price_final = price_current;
         current_stage = Stages.AuctionEnded;
-        AuctionEnded(price_final);
-    }    
+        AuctionEnded(price_current);
+    }
+
+    // View tokens to be received during claim period
+    function viewTokensToReceive() public atStage(Stages.AuctionEnded) view returns (uint) {
+        // Throw if no bid exists
+        require(bids[msg.sender].placed);
+
+        uint tokenCount = bids[msg.sender].transfer.div(price_final);
+        return tokenCount;
+    }
+
+    // Decrease current item price
+    function decreasePrice() private atStage(Stages.AuctionStarted) {
+        // Define local variables
+        uint priceDelta = bids_accepted.mul(price_decay);
+        uint newPrice = price_start.sub(priceDelta);
+
+        // TODO: check uint value
+        if (newPrice > 0)
+            price_current = newPrice;
+    }
 }

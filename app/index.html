@@ -9,6 +9,7 @@
 
   <!-- Bootstrap -->
   <link href="bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/base.css" rel="stylesheet">
   <link href="css/app.css" rel="stylesheet">
 </head>
 
@@ -38,12 +39,23 @@
         <div class="inner cover">
           <h1 class="cover-heading">Decentralizing Strongholds in Shopping</h1>
           <p class="lead">
-            <br/>
-            <span>Available tokens:
+            <span>Auction stage:
+              <strong id="info-auction-stage"></strong>
+            </span>
+            <span id="wrapper-auction-supply" class="wrapper">Available tokens:
               <strong id="info-auction-supply"></strong> SHOP
+            </span>
+            <span id="wrapper-current-price" class="wrapper">Current token price:
+              <strong id="info-current-price"></strong> Wei
+            </span>
+            <span id="wrapper-final-price" class="wrapper">Final token price:
+              <strong id="info-final-price"></strong> Wei
             </span>
           </p>
           <p class="lead">
+            <a id="btn-setup" href="javascript:void(0)" class="btn btn-lg btn-stage btn-primary">Setup</a>
+            <a id="btn-start" href="javascript:void(0)" class="btn btn-lg btn-stage btn-primary">Start</a>
+            <a id="btn-end" href="javascript:void(0)" class="btn btn-lg btn-stage btn-danger">End</a>
             <a id="btn-refresh" href="javascript:void(0)" class="btn btn-lg btn-default">Refresh</a>
           </p>
         </div>

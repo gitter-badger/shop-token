@@ -1,21 +1,22 @@
 var DutchAuction = artifacts.require("DutchAuction");
 var ShopToken = artifacts.require("ShopToken");
 
-module.exports = async function (deployer) {
+module.exports = function (deployer) {
   // Token unit multiplier, 10^18
-  const decimals = 10;
+  const decimals = 18;
   const multiplier = Math.pow(10, decimals);
 
-  // Mint 1MM tokens, transfer 10M for dutch auction
+  // Mint 1B tokens, transfer 10K for dutch auction
   const initialSupply = Math.pow(10, 9) * multiplier;
-  const auctionSupply = Math.pow(10, 8) * multiplier;
+  const auctionSupply = Math.pow(10, 4) * multiplier;
 
-  // Start with 0.02 ETH price
-  const priceStart = 0.02 * multiplier;
-  const priceConstant = 524880000;
-  const priceExponent = 3;
+  // Start with 500 Wei price per token
+  const priceStart = 500;
+  const priceDecay = 25;
+  const minimumBid = 0;
 
   // Deploy
-  await deployer.deploy(DutchAuction, priceStart, priceConstant, priceExponent);
-  await deployer.deploy(ShopToken, DutchAuction.address, initialSupply, auctionSupply);
+  deployer.deploy(DutchAuction, priceStart, priceDecay, minimumBid).then(function () {
+    return deployer.deploy(ShopToken, DutchAuction.address, initialSupply, auctionSupply);
+  });
 };
