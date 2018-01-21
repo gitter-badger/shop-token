@@ -1,4 +1,5 @@
 import expectThrow from 'zeppelin-solidity/test/helpers/expectThrow';
+
 import defaults from './lib/defaults.js'
 import stages from './lib/stages.js';
 
@@ -6,9 +7,6 @@ var DutchAuction = artifacts.require("./DutchAuction.sol");
 var ShopToken = artifacts.require("./ShopToken.sol");
 
 contract('StageTransition', function (accounts) {
-  // Account shortcuts
-  const coinbase = accounts[0];
-
   let auctionContract;
   let tokenContract;
 
@@ -20,7 +18,7 @@ contract('StageTransition', function (accounts) {
 
   it("Should verify initial supply values", async function () {
     const auctionBalance = await tokenContract.balanceOf(auctionContract.address);
-    const tokenBalance = await tokenContract.balanceOf(coinbase);
+    const tokenBalance = await tokenContract.balanceOf(accounts[0]);
 
     assert.equal(auctionBalance.toNumber(), defaults.auctionSupply, "Auction balance should be 10K");
     assert.equal(tokenBalance.toNumber(), defaults.tokenSupply, "Token balance should be 990M");

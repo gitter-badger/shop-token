@@ -1,4 +1,5 @@
 import expectThrow from 'zeppelin-solidity/test/helpers/expectThrow';
+
 import defaults from './lib/defaults.js';
 import stages from './lib/stages.js';
 
@@ -40,18 +41,18 @@ contract('BidScenarios', function (accounts) {
    * Bids:
    * | Bidder | Current Price | Token Units Sought | Amount Bid  |
    * | ====== | ============= | ================== | =========== |
-   * | A      | 500 Wei       | 1500               | 750000 Wei  |
-   * | B      | 475 Wei       | 3500               | 1662500 Wei |
-   * | C      | 450 Wei       | 3000               | 1350000 Wei |
-   * | D      | 425 Wei       | 2000               | 850000 Wei  |
+   * | A      | 500 wei       | 1500               | 750000 wei  |
+   * | B      | 475 wei       | 3500               | 1662500 wei |
+   * | C      | 450 wei       | 3000               | 1350000 wei |
+   * | D      | 425 wei       | 2000               | 850000 wei  |
    *
    * Results:
-   * Final price - 425 Wei
+   * Final price - 425 wei
    * - Bidder A will receive 1764 token units
    * - Bidder B will receive 3911 token units
    * - Bidder C will receive 3176 token units
    * - Bidder D will receive 2000 token units
-  */
+   */
   it("Should verify 1st bidding scenario", async function () {
     let result;
     let current_price;

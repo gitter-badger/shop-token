@@ -52,19 +52,19 @@ contract DutchAuction {
     // Number of accepted bids
     uint public bids_accepted;
 
-    // Minimum bid value in Wei
+    // Minimum bid value in wei
     uint public minimum_bid;
 
-    // Starting price in Wei
+    // Starting price in wei
     uint public price_start;
 
-    // Price decay value in Wei
+    // Price decay value in wei
     uint public price_decay;
 
-    // Current price in Wei
+    // Current price in wei
     uint public price_current;
 
-    // Final price in Wei
+    // Final price in wei
     uint public price_final;
 
     // Token unit multiplier
