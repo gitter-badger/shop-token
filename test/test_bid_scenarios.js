@@ -1,42 +1,18 @@
 import expectThrow from 'zeppelin-solidity/test/helpers/expectThrow';
+import defaults from './lib/defaults.js';
+import stages from './lib/stages.js';
 
 var DutchAuction = artifacts.require("./DutchAuction.sol");
 var ShopToken = artifacts.require("./ShopToken.sol");
 
 contract('BidScenarios', function (accounts) {
-  // Token constructor parameters
-  const decimals = 18;
-  const multiplier = Math.pow(10, decimals);
-  const initialSupply = Math.pow(10, 9) * multiplier;
-  const auctionSupply = Math.pow(10, 4);
-  const tokenSupply = initialSupply - auctionSupply;
-
-  // Dutch auction constructor parameters
-  const priceStart = 500;
-  const priceDecay = 25;
-  const minimumBid = 0;
-
   let auctionContract;
   let tokenContract;
 
-  // ENUMs are not yet supported as ABI type
-  // See https://github.com/ethereum/EIPs/issues/47
-  const StagesEnum = {
-    AuctionDeployed: 0,
-    AuctionSetup: 1,
-    AuctionStarted: 2,
-    AuctionEnded: 3,
-    TokensDistributed: 4
-  }
-
-  // Named constant for events
-  const BID_RECEIVED = "BidReceived";
-  const AUCTION_ENDED = "AuctionEnded";
-
   // Reset contract state before each test case
   beforeEach(async function () {
-    auctionContract = await DutchAuction.new(priceStart, priceDecay, minimumBid);
-    tokenContract = await ShopToken.new(auctionContract.address, initialSupply, auctionSupply);
+    auctionContract = await DutchAuction.new(defaults.priceStart, defaults.priceDecay, defaults.minimumBid);
+    tokenContract = await ShopToken.new(auctionContract.address, defaults.initialSupply, defaults.auctionSupply);
 
     // Setup and start auction
     await auctionContract.setupAuction(tokenContract.address);
@@ -85,7 +61,7 @@ contract('BidScenarios', function (accounts) {
 
     // Verify total token units first
     total_token_units = await auctionContract.total_token_units.call();
-    assert.equal(total_token_units.toNumber(), auctionSupply, "Total token units should be equal to 10000");
+    assert.equal(total_token_units.toNumber(), defaults.auctionSupply, "Total token units should be equal to 10000");
 
     // Verify initial values
     await assertAcceptedBids(0);
@@ -94,7 +70,7 @@ contract('BidScenarios', function (accounts) {
 
     // Place 1st bid and verify values
     result = await auctionContract.placeBid({ from: accounts[1], value: 750000 });
-    assert.equal(result.logs[0].event, BID_RECEIVED, "Should fire `BidReceived` event");
+    assert.equal(result.logs[0].event, stages.BID_RECEIVED, "Should fire `BidReceived` event");
     assert.equal(result.logs[0].args.quantity, 1500, "Should sought 1500 token units");
     await assertAcceptedBids(1);
     await assertCurrentPrice(475);
@@ -102,7 +78,7 @@ contract('BidScenarios', function (accounts) {
 
     // Place 2st bid and verify values
     result = await auctionContract.placeBid({ from: accounts[2], value: 1662500 });
-    assert.equal(result.logs[0].event, BID_RECEIVED, "Should fire `BidReceived` event");
+    assert.equal(result.logs[0].event, stages.BID_RECEIVED, "Should fire `BidReceived` event");
     assert.equal(result.logs[0].args.quantity, 3500, "Should sought 3500 token units");
     await assertAcceptedBids(2);
     await assertCurrentPrice(450);
@@ -110,7 +86,7 @@ contract('BidScenarios', function (accounts) {
 
     // Place 3rd bid and verify values
     result = await auctionContract.placeBid({ from: accounts[3], value: 1350000 });
-    assert.equal(result.logs[0].event, BID_RECEIVED, "Should fire `BidReceived` event");
+    assert.equal(result.logs[0].event, stages.BID_RECEIVED, "Should fire `BidReceived` event");
     assert.equal(result.logs[0].args.quantity, 3000, "Should sought 3000 token units");
     await assertAcceptedBids(3);
     await assertCurrentPrice(425);
@@ -118,9 +94,9 @@ contract('BidScenarios', function (accounts) {
 
     // Place 4th bid and verify values
     result = await auctionContract.placeBid({ from: accounts[4], value: 850000 });
-    assert.equal(result.logs[0].event, BID_RECEIVED, "Should fire `BidReceived` event");
+    assert.equal(result.logs[0].event, stages.BID_RECEIVED, "Should fire `BidReceived` event");
     assert.equal(result.logs[0].args.quantity, 2000, "Should sought 2000 token units");
-    assert.equal(result.logs[1].event, AUCTION_ENDED, "Should fire `AuctionEnded` event");
+    assert.equal(result.logs[1].event, stages.AUCTION_ENDED, "Should fire `AuctionEnded` event");
     await assertAcceptedBids(4);
     await assertCurrentPrice(400);
     await assertTotalUnitsSold(10000);
@@ -131,7 +107,7 @@ contract('BidScenarios', function (accounts) {
 
     // All token units should be sold out
     const current_stage = await auctionContract.current_stage.call();
-    assert.equal(current_stage, StagesEnum.AuctionEnded, "Stage should be `AuctionEnded`");
+    assert.equal(current_stage, stages.Enum.AuctionEnded, "Stage should be `AuctionEnded`");
 
     // View tokens to receive for each address
     let result1 = await auctionContract.viewTokensToReceive({ from: accounts[1] });
