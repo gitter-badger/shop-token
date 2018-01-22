@@ -1,5 +1,4 @@
 import expectThrow from 'zeppelin-solidity/test/helpers/expectThrow';
-
 import defaults from './lib/defaults.js';
 import stages from './lib/stages.js';
 
