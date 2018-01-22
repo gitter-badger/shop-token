@@ -3,3 +3,7 @@ build/
 
 # NPM dependencies
 node_modules/
+
+# Solidity coverage tool
+coverage/
+coverage.json

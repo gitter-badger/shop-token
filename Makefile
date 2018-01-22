@@ -1,7 +1,8 @@
 BIN=./node_modules/.bin
 
 clean:
-	rm -rf build node_modules
+	rm -rf ./build ./node_modules
+	rm -rf ./coverage ./coverage.json
 
 install:
 	yarn install --save-dev
@@ -18,7 +19,10 @@ migrate:
 test:
 	$(BIN)/run-with-testrpc --testrpc-cmd $(BIN)/ganache-cli '$(BIN)/truffle test'
 
+coverage:
+	$(BIN)/solidity-coverage
+
 run:
 	$(BIN)/nf start
 
-.PHONY: clean install build lint migrate test run
+.PHONY: clean install build lint migrate test coverage run
