@@ -14,3 +14,16 @@ Smart contracts for SHOP token and sale in form of [Dutch auction](https://en.wi
 1. Run `make clean install build run`.
 2. Open [`localhost:3000`](http://localhost:3000) in your browser.
 3. Select `Localhost 8545` network in Metamask.
+
+# Contributing
+
+Thanks for considering to help out with our source code! We operate on an open
+contributor model where anyone across the Internet can help in the form of peer
+review, testing, and patches.
+
+For more details about how to get involved, see our
+[Contribution Guide](https://github.com/comrse/shop-token/blob/master/CONTRIBUTING.md)
+
+# License
+
+MIT
