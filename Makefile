@@ -25,4 +25,7 @@ coverage:
 run:
 	$(BIN)/nf start
 
-.PHONY: clean install build lint migrate test coverage run
+testrpc:
+	$(BIN)/ganache-cli
+
+.PHONY: clean install build lint migrate test coverage run testrpc

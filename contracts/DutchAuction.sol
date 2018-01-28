@@ -24,7 +24,7 @@ contract DutchAuction {
     }
 
     // Auction Events
-    event AuctionDeployed(uint indexed priceStart, uint indexed priceDelta);
+    event AuctionDeployed(uint indexed priceStart);
     event AuctionSetup();
     event AuctionStarted();
     event BidReceived(
@@ -49,20 +49,8 @@ contract DutchAuction {
     // Auction owner address
     address public owner_address;
 
-    // Number of accepted bids
-    uint public bids_accepted;
-
-    // Minimum bid value in wei
-    uint public minimum_bid;
-
     // Starting price in wei
     uint public price_start;
-
-    // Price decay value in wei
-    uint public price_decay;
-
-    // Current price in wei
-    uint public price_current;
 
     // Final price in wei
     uint public price_final;
@@ -75,6 +63,49 @@ contract DutchAuction {
 
     // Total number of token units for auction
     uint public total_token_units;
+
+    // Auction start time
+    uint public start_time;
+
+    // Auction duration, in days
+    uint public duration = 30;
+
+    // Precision for price calculation
+    uint public precision = 10 ** 13;
+
+    // Price decay rates per day
+    uint[30] public rates = [
+        precision,
+        7694472807310,
+        5920491178244,
+        4555505837691,
+        3505221579166,
+        2697083212449,
+        2075263343724,
+        1596805736629,
+        1228657831905,
+        945387427708,
+        727425785487,
+        559715792577,
+        430671794580,
+        331379241228,
+        254978856053,
+        196192787434,
+        150960006790,
+        116155766724,
+        89375738847,
+        68769919219,
+        52914827339,
+        40715170006,
+        31328176846,
+        24105380484,
+        18547819465,
+        14271569251,
+        10981220152,
+        8449469985,
+        6501421703,
+        5002501251
+    ];    
 
     // Stage modifier
     modifier atStage(Stages _stage) {
@@ -89,31 +120,26 @@ contract DutchAuction {
     }
 
     // Constructor
-    function DutchAuction(
-        uint _priceStart, 
-        uint _priceDecay,
-        uint _minimumBid) 
-        public 
-    {
+    function DutchAuction(uint _priceStart) public {
         // Input parameters validation
         require(_priceStart > 0);
-        require(_priceDecay > 0);
-        require(_priceDecay < _priceStart);
-        require(_minimumBid >= 0);
 
         // Set auction owner address
         owner_address = msg.sender;
 
         // Set auction parameters
         price_start = _priceStart;
-        price_current = _priceStart;
-        price_decay = _priceDecay;
-        minimum_bid = _minimumBid;
+        price_final = _priceStart;
 
         // Update auction stage and fire event
         current_stage = Stages.AuctionDeployed;
-        AuctionDeployed(_priceStart, _priceDecay);
+        AuctionDeployed(_priceStart);
     }
+
+    // Fallback function
+    function () public payable atStage(Stages.AuctionStarted) {
+        placeBid();
+    }    
 
     // Setup auction
     function setupAuction(address _tokenAddress) public isOwner atStage(Stages.AuctionDeployed) {
@@ -129,9 +155,6 @@ contract DutchAuction {
         // Get number of token units for dutch auction
         total_token_units = token.balanceOf(address(this));
 
-        // Set initial bid count
-        bids_accepted = 0;
-
         // Update auction stage and fire event
         current_stage = Stages.AuctionSetup;
         AuctionSetup();
@@ -141,6 +164,7 @@ contract DutchAuction {
     function startAuction() public isOwner atStage(Stages.AuctionSetup) {
         // Update auction stage and fire event
         current_stage = Stages.AuctionStarted;
+        start_time = block.timestamp;
         AuctionStarted();
     }
 
@@ -149,22 +173,31 @@ contract DutchAuction {
         // Allow only a single bid per address
         require(!bids[msg.sender].placed);
 
-        // Require minimum bid value
-        require(minimum_bid < msg.value);
-
         // Declare local variables
-        uint quantity = msg.value.div(price_current);
-        uint currentPrice = price_current;
+        uint currentDays = getDays();
+        uint currentPrice = getPrice();
+
+        // Automatically end auction
+        if (currentDays > duration) {       
+            current_stage = Stages.AuctionEnded;
+            AuctionEnded(price_final);
+        }
 
         // TODO: Handle 5% oversubscription here, instead of decreasing quantity
+        uint quantity = msg.value.div(currentPrice);        
         if (total_units_sold.add(quantity) >= total_token_units) {
             quantity = total_token_units.sub(total_units_sold);
+        }
+        
+        // Save last price
+        if (currentPrice != price_final) {
+            price_final = currentPrice;
         }
         
         // Save bid
         Bid memory bid = Bid({
             quantity: quantity,
-            price: price_current,
+            price: currentPrice,
             transfer: msg.value,
             placed: true
         });
@@ -174,30 +207,27 @@ contract DutchAuction {
         BidReceived(
             msg.sender, 
             quantity, 
-            price_current, 
+            currentPrice, 
             msg.value
         );
 
         // Update auction states
         total_units_sold = total_units_sold.add(quantity);
-        bids_accepted = bids_accepted.add(1);
-        decreasePrice();
 
         // End auction automatically if all token units sold
         // Set `price_final` to last bid price
-        if (total_units_sold == total_token_units) {
-            price_final = currentPrice;            
+        if (total_units_sold == total_token_units) {         
             current_stage = Stages.AuctionEnded;
-            AuctionEnded(currentPrice);
+            AuctionEnded(price_final);
         }
     }
 
     // End auction
     function endAuction() public isOwner atStage(Stages.AuctionStarted) {
         // Update auction states and fire event
-        price_final = price_current;
+        price_final = getPrice();
         current_stage = Stages.AuctionEnded;
-        AuctionEnded(price_current);
+        AuctionEnded(price_final);
     }
 
     // View tokens to be received during claim period
@@ -209,14 +239,18 @@ contract DutchAuction {
         return tokenCount;
     }
 
-    // Decrease current item price
-    function decreasePrice() private atStage(Stages.AuctionStarted) {
-        // Define local variables
-        uint priceDelta = bids_accepted.mul(price_decay);
-        uint newPrice = price_start.sub(priceDelta);
+    // Returns days passed
+    function getDays() public atStage(Stages.AuctionStarted) view returns (uint) {
+        return block.timestamp.sub(start_time).div(86400);
+    }
 
-        // TODO: check uint value
-        if (newPrice > 0)
-            price_current = newPrice;
+    // Returns current price
+    function getPrice() public atStage(Stages.AuctionStarted) view returns (uint) {
+        uint _day = getDays();
+        if (_day > 29) {
+            _day = 29;
+        }
+
+        return price_start * rates[_day] / precision;
     }
 }

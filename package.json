@@ -24,6 +24,7 @@
     "babel-preset-stage-2": "^6.18.0",
     "babel-preset-stage-3": "^6.17.0",
     "babel-register": "^6.23.0",
+    "bignumber.js": "^5.0.0",
     "ganache-cli": "^6.0.3",
     "@heroku/foreman": "^2.0.2",
     "lite-server": "^2.3.0",

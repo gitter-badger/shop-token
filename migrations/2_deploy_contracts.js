@@ -12,11 +12,9 @@ module.exports = function (deployer) {
 
   // Start with 500 Wei price per token unit
   const priceStart = 500;
-  const priceDecay = 25;
-  const minimumBid = 0;
 
   // Deploy
-  deployer.deploy(DutchAuction, priceStart, priceDecay, minimumBid).then(function () {
+  deployer.deploy(DutchAuction, priceStart).then(function () {
     return deployer.deploy(ShopToken, DutchAuction.address, initialSupply, auctionSupply);
   });
 };

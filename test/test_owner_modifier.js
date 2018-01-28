@@ -10,7 +10,7 @@ contract('OwnerModifier', function (accounts) {
 
   // Reset contract state before each test case
   beforeEach(async function () {
-    auctionContract = await DutchAuction.new(defaults.priceStart, defaults.priceDecay, defaults.minimumBid);
+    auctionContract = await DutchAuction.new(defaults.priceStart);
     tokenContract = await ShopToken.new(auctionContract.address, defaults.initialSupply, defaults.auctionSupply);
   });
 

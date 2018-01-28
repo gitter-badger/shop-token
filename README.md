@@ -4,10 +4,22 @@
 
 Smart contracts for SHOP token and sale in form of [Dutch auction](https://en.wikipedia.org/wiki/Dutch_auction).
 
+# Details
+
+Auction duration is **30 days**, price per token unit exponentially decreases every day, all token units are being sold by the final bid price.
+
+We're using [:page_facing_up: Pre-calculated Price Decay Rates](https://docs.google.com/spreadsheets/d/1ZqdmBoNK8sbgroBIxnbt9xCebFIfFZAtflxKLkSrplQ/edit?usp=sharing) to avoid overflows and reduce computations (and therefore, gas price) during bidding.
+
+Auction stages:
+* `AuctionDeployed`
+* `AuctionSetup`
+* `AuctionStarted`
+* `AuctionEnded`
+* `TokenDistribution`
+
 # Prerequisites
 
 * [yarn](https://yarnpkg.com)
-* [MetaMask](https://metamask.io)
 
 # Running DApp
 
