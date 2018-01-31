@@ -78,7 +78,7 @@ contract('AuctionScenarios', function (accounts) {
    * - Final price - 15 wei
    * - Bidder A will receive 2666 token units
    * - Bidder B will receive 2000 token units
-   * - Bidder C will receive 5833 token units
+   * - Bidder C will receive 5333 token units
    */
   it("Should verify Auction Scenario I", async function () {
     // Bidder simulation parameters
@@ -174,7 +174,7 @@ contract('AuctionScenarios', function (accounts) {
    * - Final price - 15 wei
    * - Bidder A will receive 2666 token units
    * - Bidder B will receive 2000 token units
-   * - Bidder C will receive 5666 token units
+   * - Bidder C will receive 5833 token units
    */
   it("Should verify Auction Scenario III", async function () {
     // Bidder simulation parameters
