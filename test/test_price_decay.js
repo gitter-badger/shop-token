@@ -18,7 +18,7 @@ contract('PriceDecay', function (accounts) {
   // Reset contract state before each test case
   beforeEach(async function () {
     const startPrice = new BigNumber(19.99);
-    const startPriceWei = startPrice.mul(conversionRate).mul(defaults.multiplier);
+    const startPriceWei = startPrice.times(conversionRate).times(defaults.multiplier);
 
     // Deploy contracts
     auctionContract = await DutchAuction.new(startPriceWei.toNumber());

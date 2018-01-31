@@ -21,3 +21,6 @@ jobs:
       - run: 
           name: Test Contracts
           command: yarn run test
+      - run:
+          name: Run & Publish Coverage
+          command: yarn run coveralls

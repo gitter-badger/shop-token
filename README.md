@@ -1,6 +1,6 @@
 # SHOP Token
 
-[![CircleCI](https://circleci.com/gh/comrse/shop-token.svg?style=svg&circle-token=8845e1996d8ca21226b9a7b16ba52cfdf9bfff9e)](https://circleci.com/gh/comrse/shop-token)
+[![CircleCI](https://circleci.com/gh/ShoppersShop/shop-token.svg?style=svg)](https://circleci.com/gh/ShoppersShop/shop-token) [![dependencies Status](https://david-dm.org/ShoppersShop/shop-token/status.svg)](https://david-dm.org/ShoppersShop/shop-token) [![devDependencies Status](https://david-dm.org/ShoppersShop/shop-token/dev-status.svg)](https://david-dm.org/ShoppersShop/shop-token?type=dev) [![Coverage Status](https://coveralls.io/repos/github/ShoppersShop/shop-token/badge.svg?branch=master)](https://coveralls.io/github/ShoppersShop/shop-token?branch=master)
 
 Smart contracts for SHOP token and sale in form of [Dutch auction](https://en.wikipedia.org/wiki/Dutch_auction).
 
@@ -28,7 +28,7 @@ contributor model where anyone across the Internet can help in the form of peer
 review, testing, and patches.
 
 For more details about how to get involved, see our
-[Contribution Guide](https://github.com/comrse/shop-token/blob/master/CONTRIBUTING.md)
+[Contribution Guide](https://github.com/ShoppersShop/shop-token/blob/master/CONTRIBUTING.md)
 
 # License
 

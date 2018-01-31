@@ -1,14 +1,15 @@
 {
   "name": "shop-token",
   "version": "1.0.0",
-  "description": "Smart contracts for SHOP token and sale in form of Dutch auction",
+  "description": "Smart contracts for SHOP token and dutch auction public token event",
   "repository": {
     "type": "git",
-    "url": "https://github.com/comrse/shop-token"
+    "url": "https://github.com/ShoppersShop/shop-token"
   },
   "scripts": {
     "build": "truffle compile",
     "coverage": "solidity-coverage",
+    "coveralls": "solidity-coverage && cat coverage/lcov.info | coveralls",
     "lint": "solium -d contracts/",
     "migrate": "run-with-testrpc 'truffle migrate'",
     "test": "run-with-testrpc 'truffle test'",
@@ -25,8 +26,9 @@
     "babel-preset-stage-2": "^6.18.0",
     "babel-preset-stage-3": "^6.17.0",
     "babel-register": "^6.23.0",
-    "bignumber.js": "^5.0.0",
-    "ganache-cli": "^6.0.3",
+    "bignumber.js": "^6.0.0",
+    "coveralls": "^3.0.0",    
+    "ganache-cli": "v6.1.0-beta.0",
     "run-with-testrpc": "^0.3.0",
     "solidity-coverage": "^0.4.3",
     "solium": "^1.1.2"

@@ -33,7 +33,7 @@ contract('AuctionScenarios', function (accounts) {
     assert.equal(result.toNumber(), value, "Received wei should be correct");
   }
 
-  async function assertBid(id, amount) {
+  async function assertAcceptedBid(id, amount) {
     const result = await auctionContract.sendTransaction({ from: accounts[id], value: amount });
     assert.equal(result.logs[0].event, events.BID_RECEIVED, "Should fire `BidReceived` event");
   }
@@ -46,7 +46,7 @@ contract('AuctionScenarios', function (accounts) {
 
     // Ensure proper amount is refunded
     const bidAmount = new BigNumber(amount);
-    const refunded = bidAmount.sub(accepted).toNumber();
+    const refunded = bidAmount.minus(accepted).toNumber();
     assert.equal(result.logs[1].event, events.BID_PARTIALLY_REFUNDED, "Should fire `BidPartiallyRefunded` event");
     assert.equal(result.logs[1].args.transfer.toNumber(), refunded, "Refund transfer value should be correct");    
 
@@ -88,18 +88,18 @@ contract('AuctionScenarios', function (accounts) {
     const results = { bidderA: 2666, bidderB: 2000, bidderC: 5333 };
 
     // Place 1st bid
-    await assertBid(1, bids.first);
+    await assertAcceptedBid(1, bids.first);
     await assertReceivedWei(received.after1);
 
     // Fast-forward 1st day to decrease price
     await increaseTime(byDays(1));
 
     // Place 2nd bid
-    await assertBid(2, bids.second);
+    await assertAcceptedBid(2, bids.second);
     await assertReceivedWei(received.after2);
 
     // Place 3rd bid
-    await assertBid(3, bids.third);
+    await assertAcceptedBid(3, bids.third);
     await assertReceivedWei(received.after3);
 
     // View tokens to receive for each bidder
@@ -136,18 +136,18 @@ contract('AuctionScenarios', function (accounts) {
     const results = { bidderA: 2666, bidderB: 2000, bidderC: 5666 };
 
     // Place 1st bid
-    await assertBid(1, bids.first);
+    await assertAcceptedBid(1, bids.first);
     await assertReceivedWei(received.after1);
 
     // Fast-forward 1st day to decrease price
     await increaseTime(byDays(1));
 
     // Place 2nd bid
-    await assertBid(2, bids.second);
+    await assertAcceptedBid(2, bids.second);
     await assertReceivedWei(received.after2);
 
     // Place 3rd bid
-    await assertBid(3, bids.third);
+    await assertAcceptedBid(3, bids.third);
     await assertReceivedWei(received.after3);
 
     // View tokens to receive for each bidder
@@ -184,18 +184,18 @@ contract('AuctionScenarios', function (accounts) {
     const results = { bidderA: 2666, bidderB: 2000, bidderC: 5833 };
 
     // Place 1st bid
-    await assertBid(1, bids.first);
+    await assertAcceptedBid(1, bids.first);
     await assertReceivedWei(received.after1);
 
     // Fast-forward 1st day to decrease price
     await increaseTime(byDays(1));
 
     // Place 2nd bid
-    await assertBid(2, bids.second);
+    await assertAcceptedBid(2, bids.second);
     await assertReceivedWei(received.after2);
 
     // Place 3rd bid
-    await assertBid(3, bids.third);
+    await assertAcceptedBid(3, bids.third);
     await assertReceivedWei(received.after3);
 
     // View tokens to receive for each bidder
@@ -233,14 +233,14 @@ contract('AuctionScenarios', function (accounts) {
     const results = { bidderA: 2666, bidderB: 2000, bidderC: 5833 };
 
     // Place 1st bid
-    await assertBid(1, bids.first);
+    await assertAcceptedBid(1, bids.first);
     await assertReceivedWei(received.after1);
 
     // Fast-forward 1st day to decrease price
     await increaseTime(byDays(1));
 
     // Place 2nd bid
-    await assertBid(2, bids.second);
+    await assertAcceptedBid(2, bids.second);
     await assertReceivedWei(received.after2);
 
     // Place 3rd bid

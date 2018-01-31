@@ -7,10 +7,10 @@ review, testing, and patches.
 #### You found a bug
 
 - Ensure the bug was not already reported by searching GitHub under 
-  [Issues](https://github.com/comrse/shop-token/issues)
+  [Issues](https://github.com/ShoppersShop/shop-token/issues)
   
 - If you're unable to find an open issue addressing the problem, [open a new
-  one](https://github.com/comrse/shop-token/issues/new). Be sure to include the
+  one](https://github.com/ShoppersShop/shop-token/issues/new). Be sure to include the
   following items to help the maintainers understand and reproduce your issue:
     - A descriptive title;
     - A clear description, including as much relevant information as possible;
