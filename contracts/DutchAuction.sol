@@ -277,6 +277,7 @@ contract DutchAuction {
     function viewTokensToReceive() public atStage(Stages.AuctionEnded) view returns (uint) {
         // Throw if no bid exists
         require(bids[msg.sender].placed);
+        require(!bids[msg.sender].claimed);
 
         uint tokenCount = bids[msg.sender].transfer.div(price_final);
         return tokenCount;
