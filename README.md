@@ -15,6 +15,7 @@ Auction stages:
 * `AuctionSetup`
 * `AuctionStarted`
 * `AuctionEnded`
+* `TokensDistributed`
 
 # Dependencies
 
