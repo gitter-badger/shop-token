@@ -64,8 +64,8 @@ contract('AuctionScenarios', function (accounts) {
    * === Auction Scenario I ===
    * 
    * Description:
-   * - Initial offering sold out
-   * - Oversubscription bonus untouched
+   * - Initial offering       ⇒ sold out
+   * - Oversubscription bonus ⇒ untouched
    *
    * Bids:
    * | Day | Bidder | Price  | Units | Bid Amount  | Accepted  | Refunded |
@@ -75,7 +75,6 @@ contract('AuctionScenarios', function (accounts) {
    * | 2   | C      | 15 wei | 5333  | 80000 wei   | All       | None     |
    *
    * Results:
-   * - Final price - 15 wei
    * - Bidder A will receive 2666 token units
    * - Bidder B will receive 2000 token units
    * - Bidder C will receive 5333 token units
@@ -112,8 +111,8 @@ contract('AuctionScenarios', function (accounts) {
    * === Auction Scenario II ===
    * 
    * Description:
-   * - Initial offering sold out
-   * - Oversubscription bonus partially sold
+   * - Initial offering       ⇒ sold out
+   * - Oversubscription bonus ⇒ partially sold
    *
    * Bids:
    * | Day | Bidder | Price  | Units | Bid Amount  | Accepted  | Refunded |
@@ -123,7 +122,6 @@ contract('AuctionScenarios', function (accounts) {
    * | 2   | C      | 15 wei | 5666  | 85000 wei   | All       | None     |
    *
    * Results:
-   * - Final price - 15 wei
    * - Bidder A will receive 2666 token units
    * - Bidder B will receive 2000 token units
    * - Bidder C will receive 5666 token units
@@ -160,8 +158,8 @@ contract('AuctionScenarios', function (accounts) {
    * === Auction Scenario III ===
    * 
    * Description:
-   * - Initial offering sold out
-   * - Oversubscription bonus sold out
+   * - Initial offering       ⇒ sold out
+   * - Oversubscription bonus ⇒ sold out
    *
    * Bids:
    * | Day | Bidder | Price  | Units | Bid Amount  | Accepted  | Refunded |
@@ -171,7 +169,6 @@ contract('AuctionScenarios', function (accounts) {
    * | 2   | C      | 15 wei | 5833  | 87500 wei   | All       | None     |
    *
    * Results:
-   * - Final price - 15 wei
    * - Bidder A will receive 2666 token units
    * - Bidder B will receive 2000 token units
    * - Bidder C will receive 5833 token units
@@ -208,9 +205,9 @@ contract('AuctionScenarios', function (accounts) {
    * === Auction Scenario IV ===
    * 
    * Description:
-   * - Initial offering sold out
-   * - Oversubscription bonus sold out
-   * - Last bidder gets partial refund
+   * - Initial offering       ⇒ sold out
+   * - Oversubscription bonus ⇒ sold out
+   * - Last bidder            ⇒ partially refunded
    *
    * Bids:
    * | Day | Bidder | Price  | Units | Bid Amount  | Accepted  | Refunded |
@@ -220,7 +217,6 @@ contract('AuctionScenarios', function (accounts) {
    * | 2   | C      | 15 wei | 6000  | 90000 wei   | 87500 wei | 2500 wei |
    *
    * Results:
-   * - Final price - 15 wei
    * - Bidder A will receive 2666 token units
    * - Bidder B will receive 2000 token units
    * - Bidder C will receive 5833 token units
