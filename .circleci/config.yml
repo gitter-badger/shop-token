@@ -8,16 +8,16 @@ jobs:
       - checkout
       - run: 
           name: Install Dependencies
-          command: make install
+          command: yarn install
       - run: 
           name: Compile Contracts
-          command: make build
+          command: yarn run build
       - run: 
           name: Lint Contracts
-          command: make lint
+          command: yarn run lint
       - run: 
           name: Test Migrations
-          command: make migrate
+          command: yarn run migrate
       - run: 
           name: Test Contracts
-          command: make test
+          command: yarn run test

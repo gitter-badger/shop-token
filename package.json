@@ -6,6 +6,14 @@
     "type": "git",
     "url": "https://github.com/comrse/shop-token"
   },
+  "scripts": {
+    "build": "truffle compile",
+    "coverage": "solidity-coverage",
+    "lint": "solium -d contracts/",
+    "migrate": "run-with-testrpc 'truffle migrate'",
+    "test": "run-with-testrpc 'truffle test'",
+    "testrpc": "ganache-cli"
+  },
   "dependencies": {
     "truffle": "^4.0.4",
     "zeppelin-solidity": "^1.5.0"
