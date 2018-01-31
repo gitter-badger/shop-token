@@ -35,13 +35,13 @@ contract('AuctionScenarios', function (accounts) {
 
   async function assertAcceptedBid(id, amount) {
     const result = await auctionContract.sendTransaction({ from: accounts[id], value: amount });
-    assert.equal(result.logs[0].event, events.BID_RECEIVED, "Should fire `BidReceived` event");
+    assert.equal(result.logs[0].event, events.BID_ACCEPTED, "Should fire `BidAccepted` event");
   }
 
   async function assertPartiallyRefundedBid(id, amount, accepted, ending) {
     // Place bid
     const result = await auctionContract.sendTransaction({ from: accounts[id], value: amount });
-    assert.equal(result.logs[0].event, events.BID_RECEIVED, "Should fire `BidReceived` event");
+    assert.equal(result.logs[0].event, events.BID_ACCEPTED, "Should fire `BidAccepted` event");
     assert.equal(result.logs[0].args.transfer.toNumber(), accepted, "Accepted wei value should be correct");
 
     // Ensure proper amount is refunded

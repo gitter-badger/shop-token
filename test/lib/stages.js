@@ -4,7 +4,8 @@ const Enum = {
   AuctionDeployed: 0,
   AuctionSetup: 1,
   AuctionStarted: 2,
-  AuctionEnded: 3
+  AuctionEnded: 3,
+  TokensDistributed: 4
 }
 
 export default Enum;

@@ -11,6 +11,7 @@ contract DutchAuction {
         uint price;
         uint transfer;
         bool placed;
+        bool claimed;
     }
 
     // Auction Stages
@@ -18,7 +19,8 @@ contract DutchAuction {
         AuctionDeployed,
         AuctionSetup,
         AuctionStarted,
-        AuctionEnded
+        AuctionEnded,
+        TokensDistributed
     }
     
     // Auction Ending Reasons
@@ -33,9 +35,11 @@ contract DutchAuction {
     event AuctionDeployed(uint indexed priceStart);
     event AuctionSetup();
     event AuctionStarted();
-    event BidReceived(address indexed _address, uint price, uint transfer);
+    event AuctionEnded(uint priceFinal, Endings ending);    
+    event BidAccepted(address indexed _address, uint price, uint transfer);
     event BidPartiallyRefunded(address indexed _address, uint transfer);
-    event AuctionEnded(uint priceFinal, Endings ending);
+    event TokensClaimed(address indexed _address, uint amount);
+    event TokensDistributed();
 
     // Token contract reference
     ShopToken public token;
@@ -61,6 +65,9 @@ contract DutchAuction {
     // Number of received wei
     uint public received_wei = 0;
 
+    // Number of claimed wei
+    uint public claimed_wei = 0;
+
     // Total number of token units for auction
     uint public initial_offering;
 
@@ -69,6 +76,12 @@ contract DutchAuction {
 
     // Auction start time
     uint public start_time;
+
+    // Auction end time
+    uint public end_time;
+
+    // Wait 7 days after the end of the auction, before anyone can claim tokens
+    uint constant public TOKEN_CLAIM_DELAY_PERIOD = 7 days;    
 
     // Auction duration, in days
     uint public duration = 30;
@@ -228,6 +241,38 @@ contract DutchAuction {
         endImmediately(price, Endings.Manual);
     }
 
+    // Claim tokens
+    function claimTokens() public atStage(Stages.AuctionEnded) {
+        require(bids[msg.sender].placed);
+        require(!bids[msg.sender].claimed);
+        claimTokensInner(msg.sender);
+    }
+
+    function claimTokensInner(address from) private atStage(Stages.AuctionEnded) {
+        // Input parameters validation    
+        require(block.timestamp > end_time.add(TOKEN_CLAIM_DELAY_PERIOD));
+
+        // Calculate tokens to receive
+        uint tokens = bids[msg.sender].transfer.div(price_final);
+        uint auctionTokensBalance = token.balanceOf(address(this));
+        if (tokens > auctionTokensBalance) {
+            tokens = auctionTokensBalance;
+        }
+
+        // Transfer tokens and fire event
+        token.transfer(from, tokens);
+        TokensClaimed(from, tokens);
+
+        // Update the total amount of funds for which tokens have been claimed
+        claimed_wei = claimed_wei.add(bids[from].transfer);
+        bids[from].claimed = true;
+
+        if (claimed_wei >= received_wei) {
+            current_stage = Stages.TokensDistributed;
+            TokensDistributed();
+        }
+    }    
+
     // View tokens to be received during claim period
     function viewTokensToReceive() public atStage(Stages.AuctionEnded) view returns (uint) {
         // Throw if no bid exists
@@ -255,11 +300,11 @@ contract DutchAuction {
     // Private function to place bid and fire event
     function placeBidInner(address sender, uint price, uint value) private atStage(Stages.AuctionStarted) {
         // Create and save bid
-        Bid memory lastBid = Bid({price: price, transfer: value, placed: true});
+        Bid memory lastBid = Bid({price: price, transfer: value, placed: true, claimed: false});
         bids[sender] = lastBid;
 
         // Fire event
-        BidReceived(sender, price, value);
+        BidAccepted(sender, price, value);
 
         // Update received wei value
         received_wei = received_wei.add(value);
@@ -267,6 +312,7 @@ contract DutchAuction {
 
     // Private function to end auction
     function endImmediately(uint atPrice, Endings ending) private atStage(Stages.AuctionStarted) {
+        end_time = block.timestamp;
         price_final = atPrice;
         current_stage = Stages.AuctionEnded;
         AuctionEnded(price_final, ending);        
