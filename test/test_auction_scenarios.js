@@ -68,12 +68,12 @@ contract('AuctionScenarios', function (accounts) {
    * - Oversubscription bonus ⇒ untouched
    *
    * Bids:
-   * | Day | Bidder | Price  | Units | Bid Amount  | Accepted  | Refunded |
-   * | === | ====== | ====== | ===== | =========== | ========= | ======== |
-   * | 1   | A      | 20 wei | 2000  | 40000 wei   | All       | None     |
-   * | 2   | B      | 15 wei | 2000  | 30000 wei   | All       | None     |
-   * | 2   | C      | 15 wei | 5333  | 80000 wei   | All       | None     |
-   *
+   * | Day | Bidder | Price  | Units | Bid Amount  |
+   * | === | ====== | ====== | ===== | =========== |
+   * | 1   | A      | 20 wei | 2000  | 40000 wei   |
+   * | 2   | B      | 15 wei | 2000  | 30000 wei   |
+   * | 2   | C      | 15 wei | 5333  | 80000 wei   |
+   * 
    * Results:
    * - Bidder A will receive 2666 token units
    * - Bidder B will receive 2000 token units
@@ -115,11 +115,11 @@ contract('AuctionScenarios', function (accounts) {
    * - Oversubscription bonus ⇒ partially sold
    *
    * Bids:
-   * | Day | Bidder | Price  | Units | Bid Amount  | Accepted  | Refunded |
-   * | === | ====== | ====== | ===== | =========== | ========= | ======== |
-   * | 1   | A      | 20 wei | 2000  | 40000 wei   | All       | None     |
-   * | 2   | B      | 15 wei | 2000  | 30000 wei   | All       | None     |
-   * | 2   | C      | 15 wei | 5666  | 85000 wei   | All       | None     |
+   * | Day | Bidder | Price  | Units | Bid Amount  |
+   * | === | ====== | ====== | ===== | =========== |
+   * | 1   | A      | 20 wei | 2000  | 40000 wei   |
+   * | 2   | B      | 15 wei | 2000  | 30000 wei   |
+   * | 2   | C      | 15 wei | 5666  | 85000 wei   |
    *
    * Results:
    * - Bidder A will receive 2666 token units
@@ -162,11 +162,11 @@ contract('AuctionScenarios', function (accounts) {
    * - Oversubscription bonus ⇒ sold out
    *
    * Bids:
-   * | Day | Bidder | Price  | Units | Bid Amount  | Accepted  | Refunded |
-   * | === | ====== | ====== | ===== | =========== | ========= | ======== |
-   * | 1   | A      | 20 wei | 2000  | 40000 wei   | All       | None     |
-   * | 2   | B      | 15 wei | 2000  | 30000 wei   | All       | None     |
-   * | 2   | C      | 15 wei | 5833  | 87500 wei   | All       | None     |
+   * | Day | Bidder | Price  | Units | Bid Amount  |
+   * | === | ====== | ====== | ===== | =========== |
+   * | 1   | A      | 20 wei | 2000  | 40000 wei   |
+   * | 2   | B      | 15 wei | 2000  | 30000 wei   |
+   * | 2   | C      | 15 wei | 5833  | 87500 wei   |
    *
    * Results:
    * - Bidder A will receive 2666 token units
