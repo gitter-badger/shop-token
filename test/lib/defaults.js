@@ -1,18 +1,20 @@
-// Token constructor parameters
-const decimals = 18;
-const multiplier = 10 ** decimals;
-const initialSupply = Math.pow(10, 9) * multiplier;
-const auctionSupply = Math.pow(10, 4);
-const tokenSupply = initialSupply - auctionSupply;
-
 // Dutch auction constructor parameters
 const priceStart = 500;
+const offering = 10 ** 4;
+const bonus = 500;
+
+// Token constructor parameters
+const multiplier = 10 ** 18;
+const initialSupply = (10 ** 9) * multiplier;
+const auctionSupply = offering + bonus;
+const tokenSupply = initialSupply - auctionSupply;
 
 module.exports = {
-  decimals,
   multiplier,
   initialSupply,
   auctionSupply,
   tokenSupply,
+  offering,
+  bonus,
   priceStart
 };

@@ -25,7 +25,7 @@ contract('PriceDecay', function (accounts) {
     tokenContract = await ShopToken.new(auctionContract.address, defaults.initialSupply, defaults.auctionSupply);
 
     // Setup and start auction
-    await auctionContract.setupAuction(tokenContract.address);
+    await auctionContract.setupAuction(tokenContract.address, defaults.offering, defaults.bonus);
     await auctionContract.startAuction();
   });
 

@@ -4,9 +4,10 @@ import defaults from './lib/defaults.js';
 var DutchAuction = artifacts.require("./DutchAuction.sol");
 var ShopToken = artifacts.require("./ShopToken.sol");
 
-contract('OwnerModifier', function (accounts) {
+contract('OwnerInterface', function (accounts) {
   let auctionContract;
   let tokenContract;
+  const fromNonOwner = { from: accounts[1] };
 
   // Reset contract state before each test case
   beforeEach(async function () {
@@ -14,14 +15,12 @@ contract('OwnerModifier', function (accounts) {
     tokenContract = await ShopToken.new(auctionContract.address, defaults.initialSupply, defaults.auctionSupply);
   });
 
-  it("Shouldn't allow stage transition from non-owner account", async function () {
-    let fromNonOwner = { from: accounts[1] };
-
+  it("Only owner can perform stage transition", async function () {
     // Throw on `AuctionDeployed` ⇒ `AuctionSetup`
-    await expectThrow(auctionContract.setupAuction(tokenContract.address, fromNonOwner));
+    await expectThrow(auctionContract.setupAuction(tokenContract.address, defaults.offering, defaults.bonus, fromNonOwner));
 
     // Throw on `AuctionSetup` ⇒ `AuctionStarted`
-    await auctionContract.setupAuction(tokenContract.address);
+    await auctionContract.setupAuction(tokenContract.address, defaults.offering, defaults.bonus);
     await expectThrow(auctionContract.startAuction(fromNonOwner));
 
     // Throw on `AuctionSetup` ⇒ `AuctionEnded`

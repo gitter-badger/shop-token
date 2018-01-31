@@ -1,10 +1,10 @@
 // ENUMs are not yet supported as ABI type
 // See https://github.com/ethereum/EIPs/issues/47
 const Enum = {
-  AuctionDeployed: 0,
-  AuctionSetup: 1,
-  AuctionStarted: 2,
-  AuctionEnded: 3
+  Manual: 0,
+  TimeLimit: 1,
+  SoldOut: 2,
+  SoldOutBonus: 3
 }
-
+  
 export default Enum;
