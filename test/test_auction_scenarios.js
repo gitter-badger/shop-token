@@ -56,7 +56,7 @@ contract('AuctionScenarios', function (accounts) {
   }
 
   async function assertBidResult(id, amount) {
-    const result = await auctionContract.viewTokensToReceive({ from: accounts[id] });
+    const result = await auctionContract.viewTokensToClaim({ from: accounts[id] });
     assert.equal(result.toNumber(), amount, "Bidder should receive correct number of tokens");  
   }
 

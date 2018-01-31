@@ -248,33 +248,8 @@ contract DutchAuction {
         claimTokensInner(msg.sender);
     }
 
-    function claimTokensInner(address from) private atStage(Stages.AuctionEnded) {
-        // Input parameters validation    
-        require(block.timestamp > end_time.add(TOKEN_CLAIM_DELAY_PERIOD));
-
-        // Calculate tokens to receive
-        uint tokens = bids[msg.sender].transfer.div(price_final);
-        uint auctionTokensBalance = token.balanceOf(address(this));
-        if (tokens > auctionTokensBalance) {
-            tokens = auctionTokensBalance;
-        }
-
-        // Transfer tokens and fire event
-        token.transfer(from, tokens);
-        TokensClaimed(from, tokens);
-
-        // Update the total amount of funds for which tokens have been claimed
-        claimed_wei = claimed_wei.add(bids[from].transfer);
-        bids[from].claimed = true;
-
-        if (claimed_wei >= received_wei) {
-            current_stage = Stages.TokensDistributed;
-            TokensDistributed();
-        }
-    }    
-
-    // View tokens to be received during claim period
-    function viewTokensToReceive() public atStage(Stages.AuctionEnded) view returns (uint) {
+    // View tokens to be claimed during claim period
+    function viewTokensToClaim() public atStage(Stages.AuctionEnded) view returns (uint) {
         // Throw if no bid exists
         require(bids[msg.sender].placed);
         require(!bids[msg.sender].claimed);
@@ -298,11 +273,11 @@ contract DutchAuction {
         return price_start.mul(rates[_day]).div(precision);
     }
 
-    // Private function to place bid and fire event
+    // Inner function for placing bid
     function placeBidInner(address sender, uint price, uint value) private atStage(Stages.AuctionStarted) {
         // Create and save bid
-        Bid memory lastBid = Bid({price: price, transfer: value, placed: true, claimed: false});
-        bids[sender] = lastBid;
+        Bid memory bid = Bid({price: price, transfer: value, placed: true, claimed: false});
+        bids[sender] = bid;
 
         // Fire event
         BidAccepted(sender, price, value);
@@ -311,11 +286,38 @@ contract DutchAuction {
         received_wei = received_wei.add(value);
     }
 
-    // Private function to end auction
+    // Inner function for ending auction
     function endImmediately(uint atPrice, Endings ending) private atStage(Stages.AuctionStarted) {
         end_time = block.timestamp;
         price_final = atPrice;
         current_stage = Stages.AuctionEnded;
         AuctionEnded(price_final, ending);        
     }
+
+    // Inner function for claiming tokens
+    function claimTokensInner(address from) private atStage(Stages.AuctionEnded) {
+        // Input parameters validation    
+        require(block.timestamp > end_time.add(TOKEN_CLAIM_DELAY_PERIOD));
+
+        // Calculate tokens to receive
+        uint tokens = bids[msg.sender].transfer.div(price_final);
+        uint auctionTokensBalance = token.balanceOf(address(this));
+        if (tokens > auctionTokensBalance) {
+            tokens = auctionTokensBalance;
+        }
+
+        // Transfer tokens and fire event
+        token.transfer(from, tokens);
+        TokensClaimed(from, tokens);
+
+        // Update the total amount of funds for which tokens have been claimed
+        claimed_wei = claimed_wei.add(bids[from].transfer);
+        bids[from].claimed = true;
+
+        // Set new state if all tokens distributed
+        if (claimed_wei >= received_wei) {
+            current_stage = Stages.TokensDistributed;
+            TokensDistributed();
+        }
+    }    
 }
