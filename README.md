@@ -16,9 +16,10 @@ Auction stages:
 * `AuctionStarted`
 * `AuctionEnded`
 
-# Prerequisites
+# Dependencies
 
-* [yarn](https://yarnpkg.com)
+* [Node.js](https://nodejs.org) ^9.4.0
+* [Yarn](https://yarnpkg.com)
 
 # Contributing
 
