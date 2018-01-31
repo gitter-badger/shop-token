@@ -19,12 +19,6 @@ indent_style = tab
 indent_style = space
 indent_size = 2
 
-# Google HTML/CSS Style Guide
-# https://google.github.io/styleguide/htmlcssguide.html
-[*.{html,css}]
-indent_style = space
-indent_size = 2
-
 # Solidity 0.4.20 Style Guide
 # http://solidity.readthedocs.io/en/develop/style-guide.html
 [*.sol]

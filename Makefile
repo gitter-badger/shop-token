@@ -22,10 +22,7 @@ test:
 coverage:
 	$(BIN)/solidity-coverage
 
-run:
-	$(BIN)/nf start
-
 testrpc:
 	$(BIN)/ganache-cli
 
-.PHONY: clean install build lint migrate test coverage run testrpc
+.PHONY: clean install build lint migrate test coverage testrpc

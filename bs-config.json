@@ -1,8 +1,0 @@
-{
-  "open": false,
-  "server": [
-    "./app",
-    "./build/contracts",
-    "./node_modules"
-  ]
-}
